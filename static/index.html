@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pack Size Configuration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .message {
+      margin: 20px 0;
+      padding: 10px;
+      border: 1px solid;
+      border-radius: 5px;
+    }
+
+    .success {
+      border-color: #4CAF50;
+      color: #4CAF50;
+    }
+
+    .error {
+      border-color: #f44336;
+      color: #f44336;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Update Pack Sizes</h1>
+  <form id="packForm">
+    <label for="packSizes">Enter Pack Sizes (comma-separated):</label>
+    <input type="text" id="packSizes" name="packSizes" placeholder="e.g., 250, 500, 1000" required>
+    <button type="submit">Update Pack Sizes</button>
+  </form>
+  <div id="message" class="message" style="display: none;"></div>
+  <script>
+    document.getElementById('packForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const packSizesInput = document.getElementById('packSizes').value;
+      const packSizesArray = packSizesInput.split(',').map(size => parseInt(size.trim(), 10)).filter(size => !isNaN(size));
+
+      if (packSizesArray.length === 0) {
+        showMessage('Please enter valid pack sizes.', 'error');
+        return;
+      }
+
+      const requestData = {
+        pack_sizes: packSizesArray
+      };
+
+      // Make an API request to update the pack sizes
+      fetch('http://localhost:8080/set-pack-sizes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer my_secret_token'  // Replace with your actual token
+        },
+        body: JSON.stringify(requestData)
+      })
+        .then(response => response.text())
+        .then(data => {
+          showMessage('Pack sizes updated successfully.', 'success');
+        })
+        .catch(error => {
+          showMessage('Failed to update pack sizes: ' + error.message, 'error');
+        });
+    });
+
+    function showMessage(message, type) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = message;
+      messageDiv.className = `message ${type}`;
+      messageDiv.style.display = 'block';
+    }
+  </script>
+</body>
+
+</html>
